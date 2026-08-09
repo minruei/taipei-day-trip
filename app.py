@@ -150,6 +150,8 @@ async def get_attractions(
 ):
     cursor = db.cursor()
 
+    per_page = 8
+
     try:
         conditions = []
         values = []
@@ -174,10 +176,11 @@ async def get_attractions(
         total = cursor.fetchone()[0]
 
         sql = "SELECT * FROM attractions" + where_sql
-        sql = sql + " LIMIT 12 OFFSET %s"
+        sql = sql + " LIMIT %s OFFSET %s"
 
         query_values = values.copy()
-        query_values.append(page * 12)
+        query_values.append(per_page)
+        query_values.append(page * per_page)
 
         cursor.execute(sql, tuple(query_values))
         results = cursor.fetchall()
@@ -212,7 +215,7 @@ async def get_attractions(
                 "images": images
             })
 
-        if (page + 1) * 12 < total:
+        if (page + 1) * per_page < total:
             next_page = page + 1
         else:
             next_page = None
