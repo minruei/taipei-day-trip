@@ -8,16 +8,19 @@ load_dotenv()
 
 app = FastAPI()
 
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password=os.getenv("DB_PASSWORD"),
-    database="taipei_day_trip"
-)
+
+def get_db():
+    return mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password=os.getenv("DB_PASSWORD"),
+        database="taipei_day_trip"
+    )
 
 
 @app.get("/api/categories")
 async def get_categories():
+    db = get_db()
     cursor = db.cursor()
 
     try:
@@ -42,10 +45,12 @@ async def get_categories():
 
     finally:
         cursor.close()
+        db.close()
 
 
 @app.get("/api/mrts")
 async def get_mrts():
+    db = get_db()
     cursor = db.cursor()
 
     try:
@@ -79,10 +84,12 @@ async def get_mrts():
 
     finally:
         cursor.close()
+        db.close()
 
 
 @app.get("/api/attraction/{attractionId}")
 async def get_attraction(attractionId: int):
+    db = get_db()
     cursor = db.cursor()
 
     try:
@@ -140,6 +147,7 @@ async def get_attraction(attractionId: int):
 
     finally:
         cursor.close()
+        db.close()
 
 
 @app.get("/api/attractions")
@@ -148,6 +156,7 @@ async def get_attractions(
     keyword: str = None,
     category: str = None
 ):
+    db = get_db()
     cursor = db.cursor()
 
     per_page = 8
@@ -236,6 +245,7 @@ async def get_attractions(
 
     finally:
         cursor.close()
+        db.close()
 
 
 # Static Pages (Never Modify Code in this Block)
