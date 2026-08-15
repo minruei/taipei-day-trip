@@ -18,6 +18,7 @@ with open("data/taipei-attractions.json", encoding="utf-8") as file:
     raw = json.load(file)
 
 attractions = raw["list"]
+img_host = raw["img_host"]
 
 for attraction in attractions:
     sql = """
@@ -45,8 +46,7 @@ for attraction in attractions:
 
     for part in parts:
         if part != "":
-            image_url = part + ".jpg"
-
+            image_url = img_host + part + ".jpg"
             img_sql = """
             INSERT INTO attraction_images
             (attraction_id, url)

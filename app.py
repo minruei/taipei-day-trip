@@ -3,6 +3,7 @@ from fastapi.responses import FileResponse, JSONResponse
 import mysql.connector
 import os
 from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
 
 load_dotenv()
 
@@ -268,3 +269,5 @@ async def booking(request: Request):
 @app.get("/thankyou", include_in_schema=False)
 async def thankyou(request: Request):
     return FileResponse("./static/thankyou.html", media_type="text/html")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
