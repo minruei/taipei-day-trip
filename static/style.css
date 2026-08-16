@@ -55,15 +55,6 @@
     gap: 25px;
 }
 
-.footer {
-    background-color: #757575;
-    color: white;
-    text-align: center;
-    padding: 40px 0;
-    font-weight: 700;
-    font-size: 14px;
-}
-
 .banner-title {
     font-size: 28px;
     font-weight: 700;
@@ -94,6 +85,11 @@
     color: #757575;
 }
 
+/* 分類按鈕的容器：當作分類面板的定位基準 */
+.category-wrapper {
+    position: relative;
+}
+
 .category-btn {
     border: none;
     background-color: #EEEEEE;
@@ -104,6 +100,31 @@
     cursor: pointer;
     white-space: nowrap;
     border-radius: 5px 0 0 5px;
+}
+
+.category-panel {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 300px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(170, 187, 204, 0.5);
+    z-index: 10;
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    overflow: hidden;
+}
+
+.category-item {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
 }
 
 .search-btn {
@@ -154,42 +175,6 @@
     flex-shrink: 0;
 }
 
-.card {
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    overflow: hidden;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: relative; /* 讓景點名疊在卡片上 */
-}
-
-.card-img {
-    width: 100%;
-    height: 197px;
-    object-fit: cover;
-    display: block;
-}
-
-/* 景點名：疊在圖片下緣，translateY 讓它往上貼齊圖片底部 */
-.card-name {
-    position: absolute;
-    top: 197px;
-    left: 0;
-    width: 100%;
-    transform: translateY(-100%);
-    background-color: rgba(0, 0, 0, 0.6);
-    color: white;
-    padding: 10px 15px;
-    font-size: 16px;
-}
-
-.card-info {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 15px;
-    color: #666;
-    font-size: 14px;
-}
-
 .attraction-section {
     padding: 40px 0;
 }
@@ -204,53 +189,90 @@
     align-items: start;
 }
 
+.card {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 圖片容器：高度由圖片決定，當作景點名的定位基準 */
+.card-img-wrapper {
+    position: relative;
+}
+
+.card-img {
+    width: 100%;
+    height: 197px;
+    object-fit: cover;
+    display: block;
+}
+
+/* 景點名：貼齊圖片底部，圖片多高都自動對齊 */
+.card-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 10px 15px;
+    font-size: 16px;
+}
+
+.card-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    color: #666;
+    font-size: 14px;
+}
+
+.footer {
+    background-color: #757575;
+    color: white;
+    text-align: center;
+    padding: 40px 0;
+    font-weight: 700;
+    font-size: 14px;
+}
+
 /* 手機版 */
 @media (max-width: 600px) {
+    .navbar {
+        padding: 15px 10px;
+    }
+
+    .banner {
+        background-image: url("welcome.png");
+    }
+
+    .banner-content {
+        padding: 0 20px;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    .search-input {
+        min-width: 0;
+    }
+
+    .search-btn {
+        flex-shrink: 0;
+    }
+
+    .category-wrapper {
+        flex-shrink: 0;
+    }
+
     .attraction-list {
         grid-template-columns: repeat(1, 1fr);
         gap: 15px;
     }
 
-    .banner {
-        background-image:
-            linear-gradient(135deg, rgba(170, 221, 238, 0.5), rgba(102, 170, 187, 0.5)),
-            url("welcome.png");
-    }
-
     .card-img {
         height: 235px;
     }
-
-    .navbar {
-        padding: 15px 10px;
-    }
-}
-
-.category-wrapper {
-    position: relative;
-}
-
-.category-panel {
-    position: absolute;
-    top: calc(100% + 5px);
-    left: 0;
-    width: 300px;
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0 0 20px rgba(170, 187, 204, 0.5);
-    z-index: 10;
-    display: none;
-    grid-template-columns: repeat(3, 1fr);
-    overflow: hidden;
-}
-
-.category-item {
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #000000;
-    font-size: 14px;
-    border: 1px solid #e0e0e0;
-    cursor: pointer;
 }

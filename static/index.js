@@ -68,9 +68,16 @@ function createCard(attraction) {
     info.appendChild(mrt);
     info.appendChild(category);
 
-    // 把 img、name、info 裝進 card
-    card.appendChild(img);
-    card.appendChild(name);
+    // 圖片容器：包住圖片和景點名，當作景點名的定位基準
+    const imgWrapper = document.createElement("div");
+    imgWrapper.className = "card-img-wrapper";
+
+    // 圖片和景點名裝進容器
+    imgWrapper.appendChild(img);
+    imgWrapper.appendChild(name);
+
+    // 容器和資訊列裝進 card
+    card.appendChild(imgWrapper);
     card.appendChild(info);
 
     return card;
