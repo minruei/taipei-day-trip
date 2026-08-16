@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant-TW">
 
 <head>
   <meta charset="UTF-8">
@@ -18,12 +18,18 @@
   </nav>
 
   <section class="banner">
-    <h2 class="banner-title">輕鬆享受台北一日悠閒</h2>
-    <p class="banner-desc">探索每個角落，體驗城市的深度旅遊行程</p>
-    <div class="search-bar">
-      <button class="category-btn">全部分類 ▾</button>
-      <input class="search-input" type="text" placeholder="輸入景點名稱查詢">
-      <button class="search-btn">🔍</button> <!-- TODO: 之後換成正式圖示 -->
+    <div class="banner-content">
+      <h2 class="banner-title">輕鬆享受台北一日悠閒</h2>
+      <p class="banner-desc">探索每個角落，體驗城市的深度旅遊行程</p>
+
+      <div class="search-bar">
+        <div class="category-wrapper">
+          <button class="category-btn">全部分類 ▼</button>
+          <div class="category-panel"></div>
+        </div>
+        <input class="search-input" type="text" placeholder="輸入景點名稱查詢">
+        <button class="search-btn" type="button"><img src="/static/icon_search.svg" alt="搜尋"></button>
+      </div>
     </div>
   </section>
 
@@ -31,15 +37,7 @@
 
     <div class="mrt-bar">
       <button class="mrt-arrow-left"><img src="/static/arrow-left.svg" alt="上一頁"></button>
-      <ul class="mrt-list">
-        <li>劍潭</li>
-        <li>圓山</li>
-        <li>士林</li>
-        <li>北投</li>
-        <li>臺大醫院</li>
-        <li>龍山寺</li>
-        <li>西門</li>
-      </ul>
+      <ul class="mrt-list"></ul>
       <button class="mrt-arrow-right"><img src="/static/arrow-right.svg" alt="下一頁"></button>
     </div>
 
