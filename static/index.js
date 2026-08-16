@@ -153,7 +153,7 @@ searchBtn.addEventListener("click", function (event) {
 
 // 在搜尋框按 Enter 也能搜尋
 searchInput.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
+    if (event.key === "Enter" && !event.isComposing) {
         currentKeyword = searchInput.value;
         searchAttractions();
     }
