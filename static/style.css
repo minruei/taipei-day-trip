@@ -8,7 +8,9 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 0;
 }
 
 .navbar ul {
@@ -18,14 +20,15 @@
 }
 
 .navbar li {
-    color: #666;
+    color: #666666;
     font-size: 16px;
+    font-weight: 500;
     cursor: pointer;
 }
 
 .logo {
     color: #448899;
-    font-size: 24px;
+    font-size: 30px;
     font-weight: bold;
     cursor: pointer;
 }
@@ -35,66 +38,104 @@
     background-image: url("welcome.png");
     background-size: cover;
     background-position: top;
-    padding: 40px;
     color: white;
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
 
-.footer {
-    background-color: #757575;
-    color: white;
-    text-align: center;
-    padding: 40px 0;
-    font-weight: 700;
-    font-size: 14px;
+/* 主圖內容容器：限制 1200 置中，內部區塊間隔 25 */
+.banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
 }
 
 .banner-title {
     font-size: 28px;
     font-weight: 700;
+    line-height: 24px;
 }
 
 .banner-desc {
     font-size: 16px;
     font-weight: 700;
-    margin-top: 5px;
+    line-height: 13.3px;
+    margin-top: 15px;
 }
 
 .search-bar {
     display: flex;
     background-color: white;
     border-radius: 5px;
-    overflow: hidden;
     width: 460px;
     max-width: 100%;
     height: 46px;
-    margin-top: 20px;
 }
 
 .search-input {
     border: none;
     padding: 15px;
     flex: 1;
-    font-size: 15px;
+    font-size: 16px;
+    color: #757575;
+}
+
+/* 分類按鈕的容器：當作分類面板的定位基準 */
+.category-wrapper {
+    position: relative;
 }
 
 .category-btn {
     border: none;
-    background-color: white;
-    padding: 16px 8px;
-    font-size: 15px;
+    background-color: #EEEEEE;
+    padding: 0 8px;
+    width: 100px;
+    height: 100%;
+    font-size: 16px;
     cursor: pointer;
     white-space: nowrap;
+    border-radius: 5px 0 0 5px;
+}
+
+.category-panel {
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    width: 300px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 20px rgba(170, 187, 204, 0.5);
+    z-index: 10;
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    overflow: hidden;
+}
+
+.category-item {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #000000;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
 }
 
 .search-btn {
     border: none;
     background-color: #448899;
     color: white;
-    padding: 8px 15px;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
     cursor: pointer;
+    border-radius: 0 5px 5px 0;
 }
 
 .mrt-bar {
@@ -102,7 +143,7 @@
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 0;
+    padding-bottom: 20px;
     gap: 15px;
 }
 
@@ -111,6 +152,16 @@
     list-style: none;
     gap: 25px;
     overflow-x: hidden;
+    scroll-behavior: smooth;
+}
+
+.mrt-list li {
+    padding: 5px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666666;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
 .mrt-arrow-left,
@@ -124,11 +175,30 @@
     flex-shrink: 0;
 }
 
+.attraction-section {
+    padding: 40px 0;
+}
+
+.attraction-list {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    align-items: start;
+}
+
 .card {
     border: 1px solid #e0e0e0;
     border-radius: 5px;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* 圖片容器：高度由圖片決定，當作景點名的定位基準 */
+.card-img-wrapper {
+    position: relative;
 }
 
 .card-img {
@@ -138,7 +208,12 @@
     display: block;
 }
 
+/* 景點名：貼齊圖片底部，圖片多高都自動對齊 */
 .card-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     background-color: rgba(0, 0, 0, 0.6);
     color: white;
     padding: 10px 15px;
@@ -153,37 +228,51 @@
     font-size: 14px;
 }
 
-.attraction-section {
+.footer {
+    background-color: #757575;
+    color: white;
+    text-align: center;
     padding: 40px 0;
+    font-weight: 700;
+    font-size: 14px;
 }
 
-.attraction-list {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
-    align-items: start;
-}
-
+/* 手機版 */
 @media (max-width: 600px) {
+    .navbar {
+        padding: 15px 10px;
+    }
+
+    .banner {
+        background-image: url("welcome.png");
+    }
+
+    .banner-content {
+        padding: 0 20px;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    .search-input {
+        min-width: 0;
+    }
+
+    .search-btn {
+        flex-shrink: 0;
+    }
+
+    .category-wrapper {
+        flex-shrink: 0;
+    }
+
     .attraction-list {
         grid-template-columns: repeat(1, 1fr);
         gap: 15px;
     }
 
-    .banner {
-        background-image:
-            linear-gradient(135deg, rgba(170, 221, 238, 0.5), rgba(102, 170, 187, 0.5)),
-            url("welcome.png");
-    }
-
     .card-img {
         height: 235px;
-    }
-
-    .navbar {
-        padding: 15px 10px;
     }
 }

@@ -1,8 +1,10 @@
 let currentPage = 0;
 let isLoading = false;
+let currentCategory = "";
+let currentKeyword = "";
 
 async function loadAttractions() {
-    // 正在載入中則中止，避免重複發出請求
+    // 正在「載入中」則中止，避免重複發出請求
     if (isLoading) {
         return;
     }
@@ -15,7 +17,8 @@ async function loadAttractions() {
     // 設定載入狀態為 true
     isLoading = true;
 
-    const response = await fetch(`/api/attractions?page=${currentPage}`);
+    // 帶上分類和關鍵字條件去查詢
+    const response = await fetch(`/api/attractions?page=${currentPage}&keyword=${currentKeyword}&category=${currentCategory}`);
     const result = await response.json();
 
     const attractions = result.data;
@@ -65,12 +68,30 @@ function createCard(attraction) {
     info.appendChild(mrt);
     info.appendChild(category);
 
-    // 把 img、name、info 裝進 card
-    card.appendChild(img);
-    card.appendChild(name);
+    // 圖片容器：包住圖片和景點名，當作景點名的定位基準
+    const imgWrapper = document.createElement("div");
+    imgWrapper.className = "card-img-wrapper";
+
+    // 圖片和景點名裝進容器
+    imgWrapper.appendChild(img);
+    imgWrapper.appendChild(name);
+
+    // 容器和資訊列裝進 card
+    card.appendChild(imgWrapper);
     card.appendChild(info);
 
     return card;
+}
+
+// 執行搜尋：重置狀態、清空清單、重新載入
+function searchAttractions() {
+    currentPage = 0;
+    isLoading = false;
+
+    const list = document.querySelector(".attraction-list");
+    list.innerHTML = "";
+
+    loadAttractions();
 }
 
 loadAttractions();
@@ -86,3 +107,100 @@ const observer = new IntersectionObserver((entries) => {
 // 選取 sentinel 元素，讓 observer 開始監看
 const sentinel = document.querySelector(".sentinel");
 observer.observe(sentinel);
+
+async function loadCategories() {
+    const response = await fetch("/api/categories");
+    const result = await response.json();
+
+    const categories = result.data;
+
+    // 抓面板容器（放迴圈外，只抓一次）
+    const panel = document.querySelector(".category-panel");
+
+    // 每個分類做成一個選項，放進面板
+    for (const category of categories) {
+        const item = document.createElement("div");
+        item.className = "category-item";
+        item.textContent = category;
+
+        // 點這個分類時，記住它、更新按鈕文字、關閉面板
+        item.addEventListener("click", function () {
+            currentCategory = category;
+            categoryBtn.textContent = category + " ▼";
+            categoryPanel.style.display = "none";
+        });
+
+        panel.appendChild(item);
+    }
+}
+
+loadCategories();
+
+// 點分類按鈕，切換面板顯示或隱藏
+const categoryBtn = document.querySelector(".category-btn");
+const categoryPanel = document.querySelector(".category-panel");
+
+categoryBtn.addEventListener("click", function () {
+    if (categoryPanel.style.display === "grid") {
+        categoryPanel.style.display = "none";
+    } else {
+        categoryPanel.style.display = "grid";
+    }
+});
+
+// 點搜尋按鈕，讀取關鍵字並執行搜尋
+const searchBtn = document.querySelector(".search-btn");
+const searchInput = document.querySelector(".search-input");
+
+searchBtn.addEventListener("click", function (event) {
+    event.preventDefault();
+    currentKeyword = searchInput.value;
+    searchAttractions();
+});
+
+// 在搜尋框按 Enter 也能搜尋
+searchInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" && !event.isComposing) {
+        currentKeyword = searchInput.value;
+        searchAttractions();
+    }
+});
+
+// 抓 MRT 列表容器和左右箭頭（放最上面，讓下面共用）
+const mrtList = document.querySelector(".mrt-list");
+const arrowLeft = document.querySelector(".mrt-arrow-left");
+const arrowRight = document.querySelector(".mrt-arrow-right");
+
+async function loadMrts() {
+    const response = await fetch("/api/mrts");
+    const result = await response.json();
+
+    const mrts = result.data;
+
+    // 每個站名做成一個 li，放進列表
+    for (const mrt of mrts) {
+        const item = document.createElement("li");
+        item.textContent = mrt;
+
+        // 點站名：填進搜尋框、當關鍵字、執行搜尋
+        item.addEventListener("click", function () {
+            searchInput.value = mrt;
+            currentKeyword = mrt;
+            searchAttractions();
+        });
+
+        mrtList.appendChild(item);
+    }
+}
+
+loadMrts();
+
+// 點右箭頭，列表往左捲
+arrowRight.addEventListener("click", function () {
+    mrtList.scrollLeft = mrtList.scrollLeft + 200;
+});
+
+// 點左箭頭，列表往右捲
+arrowLeft.addEventListener("click", function () {
+    mrtList.scrollLeft = mrtList.scrollLeft - 200;
+});
