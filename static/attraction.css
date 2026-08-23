@@ -5,13 +5,16 @@
 }
 
 .navbar {
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.navbar-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
     max-width: 1200px;
     margin: 0 auto;
     padding: 15px 0;
-    border-bottom: 1px solid #e8e8e8;
 }
 
 .navbar ul {
@@ -156,7 +159,7 @@
 }
 
 .field-date {
-    margin-bottom: 8px;
+    margin-bottom: 15px;
 }
 
 .field-date label,
@@ -188,6 +191,29 @@
     font-size: 16px;
     color: #666666;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.field-time input[type="radio"] {
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.field-time input[type="radio"]:checked::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: #448899;
 }
 
 .price-value {
@@ -261,7 +287,7 @@ p.attraction-transport {
 
 @media (max-width: 600px) {
 
-    .navbar {
+    .navbar-inner {
         padding: 10px;
     }
 
