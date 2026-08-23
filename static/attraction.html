@@ -1,11 +1,80 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant-TW">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Attraction</title>
+  <link rel="stylesheet" href="/static/attraction.css">
 </head>
+
 <body>
-  
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a class="logo" href="/">台北一日遊</a>
+      <ul>
+        <li>預定行程</li>
+        <li>登入/註冊</li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="attraction-main">
+
+    <!-- 左半邊：圖片輪播 -->
+    <div class="picture-current">
+      <img class="carousel-img" src="" alt="">
+      <button class="carousel-arrow-left"><img src="/static/images/btn_leftArrow.svg" alt="上一張"></button>
+      <button class="carousel-arrow-right"><img src="/static/images/btn_rightArrow.svg" alt="下一張"></button>
+      <div class="indicator-bar"></div>
+    </div>
+
+    <!-- 右半邊：景點資訊 + 預約表單 -->
+    <div class="profile">
+      <h1 class="attraction-name"></h1>
+      <p class="attraction-category-mrt"></p>
+
+      <div class="booking-form">
+        <h2>訂購導覽行程</h2>
+        <p>以此景點為中心的一日行程，帶您探索城市角落故事</p>
+
+        <div class="field-date">
+          <label>選擇日期：</label>
+          <input type="date">
+        </div>
+
+        <div class="field-time">
+          <label>選擇時間：</label>
+          <label><input type="radio" name="time" value="morning"> 上半天</label>
+          <label><input type="radio" name="time" value="afternoon"> 下半天</label>
+        </div>
+
+        <div class="field-price">
+          <label>導覽費用：</label>
+          <span class="price-value"></span>
+        </div>
+
+        <button class="booking-btn">開始預約行程</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- 景點描述、地址、交通方式 -->
+  <div class="infors">
+    <p class="attraction-description"></p>
+    <p class="section-label"><strong>景點地址：</strong></p>
+    <p class="attraction-address"></p>
+    <p class="section-label"><strong>交通方式：</strong></p>
+    <p class="attraction-transport"></p>
+  </div>
+
+  <footer class="footer">
+    COPYRIGHT © 2026 台北一日遊
+  </footer>
+
+  <script src="/static/attraction.js"></script>
+
 </body>
+
 </html>

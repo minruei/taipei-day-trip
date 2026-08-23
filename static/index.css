@@ -35,7 +35,7 @@
 
 .banner {
     height: 320px;
-    background-image: url("welcome.png");
+    background-image: url("images/welcome.png");
     background-size: cover;
     background-position: top;
     color: white;
@@ -244,7 +244,7 @@
     }
 
     .banner {
-        background-image: url("welcome.png");
+        background-image: url("images/welcome.png");
     }
 
     .banner-content {

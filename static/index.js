@@ -80,7 +80,12 @@ function createCard(attraction) {
     card.appendChild(imgWrapper);
     card.appendChild(info);
 
+    card.addEventListener("click", function () {
+        window.location.href = `/attraction/${attraction.id}`;
+    });
+
     return card;
+
 }
 
 // 執行搜尋：重置狀態、清空清單、重新載入
