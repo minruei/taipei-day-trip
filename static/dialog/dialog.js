@@ -98,23 +98,24 @@ function signout() {
 async function checkSignInStatus() {
     const token = localStorage.getItem("token");
 
-    // 完全沒有 token，直接當作未登入，不用問後端
-    if (!token) {
-        return;
+    // 有 token 才需要問後端
+    if (token) {
+        const response = await fetch("/api/user/auth", {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        const result = await response.json();
+
+        // data 有東西代表已登入，把右上角換成登出系統
+        if (result.data) {
+            authNav.textContent = "登出系統";
+            authNav.removeEventListener("click", openDialog);
+            authNav.addEventListener("click", signout);
+        }
     }
 
-    const response = await fetch("/api/user/auth", {
-        headers: { "Authorization": "Bearer " + token }
-    });
-
-    const result = await response.json();
-
-    // data 有東西代表已登入，把右上角換成登出系統
-    if (result.data) {
-        authNav.textContent = "登出系統";
-        authNav.removeEventListener("click", openDialog);
-        authNav.addEventListener("click", signout);
-    }
+    // 狀態確定了才顯示出來，避免閃過錯誤的文字
+    authNav.style.visibility = "visible";
 }
 
 checkSignInStatus();

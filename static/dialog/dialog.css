@@ -3,6 +3,12 @@
     display: none !important;
 }
 
+/* 登入狀態確認前先隱藏，避免閃過錯誤的文字 */
+/* 用 visibility 而不是 display，位置才會保留，版面不會跳動 */
+#auth-nav {
+    visibility: hidden;
+}
+
 /* 遮罩層：蓋滿整個畫面，把後面的內容壓暗 */
 .dialog-backdrop {
     position: fixed;
@@ -13,8 +19,8 @@
     background-color: rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: flex-start;
-    padding-top: 80px;
     justify-content: center;
+    padding-top: 80px;
     z-index: 100;
 }
 
@@ -61,8 +67,7 @@
     text-align: center;
 }
 
-/* 輸入框和按鈕之間的間距是 10px，比整體的 15px 小 */
-/* 所以輸入框自己控制下方間距 */
+/* 輸入框 */
 .dialog-input {
     width: 100%;
     height: 47px;
