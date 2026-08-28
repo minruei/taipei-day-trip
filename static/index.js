@@ -209,3 +209,4 @@ arrowRight.addEventListener("click", function () {
 arrowLeft.addEventListener("click", function () {
     mrtList.scrollLeft = mrtList.scrollLeft - 200;
 });
+

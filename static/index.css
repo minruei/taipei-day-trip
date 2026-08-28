@@ -4,7 +4,12 @@
     box-sizing: border-box;
 }
 
+/* 外層：目前不用畫線，但保留這一層讓結構跟景點頁一致 */
 .navbar {
+}
+
+/* 內層：負責排版、限寬置中 */
+.navbar-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -16,7 +21,7 @@
 .navbar ul {
     display: flex;
     list-style: none;
-    gap: 30px;
+    gap: 20px;
 }
 
 .navbar li {
@@ -30,6 +35,7 @@
     color: #448899;
     font-size: 30px;
     font-weight: bold;
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -239,7 +245,7 @@
 
 /* 手機版 */
 @media (max-width: 600px) {
-    .navbar {
+    .navbar-inner {
         padding: 15px 10px;
     }
 
