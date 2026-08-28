@@ -3,6 +3,9 @@ let isLoading = false;
 let currentCategory = "";
 let currentKeyword = "";
 
+// sentinel 移到最上面，因為 loadAttractions 裡面要用到它
+const sentinel = document.querySelector(".sentinel");
+
 async function loadAttractions() {
     // 正在「載入中」則中止，避免重複發出請求
     if (isLoading) {
@@ -34,6 +37,12 @@ async function loadAttractions() {
 
     // 載入完成，設定載入狀態為 false
     isLoading = false;
+
+    // 載完之後檢查 sentinel 是否還在畫面內
+    // 若是，代表內容還不夠長，繼續載下一頁
+    if (sentinel.getBoundingClientRect().top < window.innerHeight) {
+        loadAttractions();
+    }
 }
 
 function createCard(attraction) {
@@ -109,8 +118,7 @@ const observer = new IntersectionObserver((entries) => {
     }
 });
 
-// 選取 sentinel 元素，讓 observer 開始監看
-const sentinel = document.querySelector(".sentinel");
+// 讓 observer 開始監看 sentinel
 observer.observe(sentinel);
 
 async function loadCategories() {
@@ -209,4 +217,3 @@ arrowRight.addEventListener("click", function () {
 arrowLeft.addEventListener("click", function () {
     mrtList.scrollLeft = mrtList.scrollLeft - 200;
 });
-

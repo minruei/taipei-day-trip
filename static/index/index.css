@@ -41,7 +41,7 @@
 
 .banner {
     height: 320px;
-    background-image: url("images/welcome.png");
+    background-image: url("/static/images/welcome.png");
     background-size: cover;
     background-position: top;
     color: white;
@@ -195,6 +195,12 @@
     align-items: start;
 }
 
+/* 觸發載入下一頁的偵測點，需要一點高度才容易被偵測到 */
+.sentinel {
+    height: 20px;
+}
+
+
 .card {
     border: 1px solid #e0e0e0;
     border-radius: 5px;
@@ -250,7 +256,7 @@
     }
 
     .banner {
-        background-image: url("images/welcome.png");
+        background-image: url("/static/images/welcome.png");
     }
 
     .banner-content {
