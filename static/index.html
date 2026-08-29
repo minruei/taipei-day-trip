@@ -5,16 +5,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Index</title>
-  <link rel="stylesheet" href="/static/index.css">
+  <link rel="stylesheet" href="/static/index/index.css">
+  <link rel="stylesheet" href="/static/dialog/dialog.css">
 </head>
 
 <body>
   <nav class="navbar">
-    <a class="logo">台北一日遊</a>
-    <ul>
-      <li>預定行程</li>
-      <li>登入/註冊</li>
-    </ul>
+    <div class="navbar-inner">
+      <a class="logo" href="/">台北一日遊</a>
+      <ul>
+        <li>預定行程</li>
+        <li id="auth-nav">登入/註冊</li>
+      </ul>
+    </div>
   </nav>
 
   <section class="banner">
@@ -51,7 +54,38 @@
     COPYRIGHT © 2026 台北一日遊
   </footer>
 
-  <script src="/static/index.js"></script>
+  <script src="/static/index/index.js"></script>
+
+  <!-- 登入註冊彈窗，遮罩層預設隱藏 -->
+  <div class="dialog-backdrop hidden">
+    <div class="dialog">
+      <div class="dialog-bar"></div>
+      <img class="dialog-close" src="/static/images/icon_close.svg" alt="關閉">
+
+      <!-- 登入表單 -->
+      <div class="dialog-form" id="signin-form">
+        <h2>登入會員帳號</h2>
+        <input type="email" class="dialog-input" id="signin-email" placeholder="輸入電子信箱">
+        <input type="password" class="dialog-input" id="signin-password" placeholder="輸入密碼">
+        <button class="dialog-btn" id="signin-btn">登入帳戶</button>
+        <p class="dialog-message" id="signin-message"></p>
+        <p class="dialog-switch" id="to-signup">還沒有帳戶？點此註冊</p>
+      </div>
+
+      <!-- 註冊表單，預設隱藏 -->
+      <div class="dialog-form hidden" id="signup-form">
+        <h2>註冊會員帳號</h2>
+        <input type="text" class="dialog-input" id="signup-name" placeholder="輸入姓名">
+        <input type="email" class="dialog-input" id="signup-email" placeholder="輸入電子郵件">
+        <input type="password" class="dialog-input" id="signup-password" placeholder="輸入密碼">
+        <button class="dialog-btn" id="signup-btn">註冊新帳戶</button>
+        <p class="dialog-message" id="signup-message"></p>
+        <p class="dialog-switch" id="to-signin">已經有帳戶了？點此登入</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/dialog/dialog.js"></script>
 
 </body>
 

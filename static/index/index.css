@@ -4,7 +4,12 @@
     box-sizing: border-box;
 }
 
+/* 外層：目前不用畫線，但保留這一層讓結構跟景點頁一致 */
 .navbar {
+}
+
+/* 內層：負責排版、限寬置中 */
+.navbar-inner {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -16,7 +21,7 @@
 .navbar ul {
     display: flex;
     list-style: none;
-    gap: 30px;
+    gap: 20px;
 }
 
 .navbar li {
@@ -30,12 +35,13 @@
     color: #448899;
     font-size: 30px;
     font-weight: bold;
+    text-decoration: none;
     cursor: pointer;
 }
 
 .banner {
     height: 320px;
-    background-image: url("images/welcome.png");
+    background-image: url("/static/images/welcome.png");
     background-size: cover;
     background-position: top;
     color: white;
@@ -189,6 +195,12 @@
     align-items: start;
 }
 
+/* 觸發載入下一頁的偵測點，需要一點高度才容易被偵測到 */
+.sentinel {
+    height: 20px;
+}
+
+
 .card {
     border: 1px solid #e0e0e0;
     border-radius: 5px;
@@ -239,12 +251,12 @@
 
 /* 手機版 */
 @media (max-width: 600px) {
-    .navbar {
+    .navbar-inner {
         padding: 15px 10px;
     }
 
     .banner {
-        background-image: url("images/welcome.png");
+        background-image: url("/static/images/welcome.png");
     }
 
     .banner-content {

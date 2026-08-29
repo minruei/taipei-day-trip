@@ -1,0 +1,112 @@
+/* 通用的隱藏 class，加上就消失，拿掉就出現 */
+.hidden {
+    display: none !important;
+}
+
+/* 登入狀態確認前先隱藏，避免閃過錯誤的文字 */
+/* 用 visibility 而不是 display，位置才會保留，版面不會跳動 */
+#auth-nav {
+    visibility: hidden;
+}
+
+/* 遮罩層：蓋滿整個畫面，把後面的內容壓暗 */
+.dialog-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 80px;
+    z-index: 100;
+}
+
+/* 彈窗本體：白色卡片 */
+.dialog {
+    position: relative;
+    width: 340px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 4px 60px #AAAAAA;
+    overflow: hidden;
+}
+
+/* 頂部的漸層裝飾條 */
+.dialog-bar {
+    width: 100%;
+    height: 10px;
+    background: linear-gradient(to right, #337788, #66AABB);
+}
+
+/* 右上角的關閉按鈕 */
+.dialog-close {
+    position: absolute;
+    top: 27px;
+    right: 17px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+/* 表單區：內容垂直排列，間距 15px */
+.dialog-form {
+    display: flex;
+    flex-direction: column;
+    padding: 25px 15px 15px 15px;
+    gap: 15px;
+}
+
+/* 標題 */
+.dialog-form h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #666666;
+    text-align: center;
+}
+
+/* 輸入框 */
+.dialog-input {
+    width: 100%;
+    height: 47px;
+    padding: 15px;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* 輸入框裡的提示文字 */
+.dialog-input::placeholder {
+    color: #757575;
+}
+
+/* 送出按鈕 */
+.dialog-btn {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: #448899;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 19px;
+    cursor: pointer;
+}
+
+/* 底部切換文字 */
+.dialog-switch {
+    font-size: 16px;
+    font-weight: 500;
+    color: #666666;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* 錯誤或成功訊息 */
+.dialog-message {
+    font-size: 14px;
+    text-align: center;
+    color: #dd4444;
+}
