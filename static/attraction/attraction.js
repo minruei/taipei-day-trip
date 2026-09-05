@@ -1,5 +1,6 @@
 let currentImageIndex = 0;
 let currentImages = [];
+let currentPrice = 2000;   // 目前選的價格，預設上半天
 
 async function loadAttraction() {
     // 從網址路徑挖出景點 id（例如 /attraction/14 -> "14"）
@@ -72,9 +73,48 @@ function prevImage() {
     showImage();
 }
 
-document.querySelector(".carousel-arrow-right").addEventListener("click", nextImage);
-document.querySelector(".carousel-arrow-left").addEventListener("click", prevImage);
+// 點「開始預約行程」：沒登入開彈窗，有登入就建立預訂
+async function createBooking() {
+    // 沒登入就開彈窗，直接結束
+    if (!isSignedIn) {
+        openDialog();
+        return;
+    }
 
+    // 把要送的資料撈出來
+    const parts = window.location.pathname.split("/");
+    const attractionId = parts.at(-1);
+    const date = document.querySelector("#booking-date").value;
+    const checkedTime = document.querySelector('input[name="time"]:checked');
+    const price = currentPrice;
+
+    // 日期或時段沒填就擋下來
+    if (!date || !checkedTime) {
+        alert("請選擇日期和時間");
+        return;
+    }
+
+    const time = checkedTime.value;
+
+    // 帶著 token 送出預訂
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("/api/booking", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ attractionId, date, time, price })
+    });
+
+    const result = await response.json();
+
+    // 成功就跳到預定行程頁
+    if (result.ok) {
+        window.location.href = "/booking";
+    }
+}
 
 // 抓所有時段選項的 radio 按鈕
 const timeRadios = document.querySelectorAll('input[name="time"]');
@@ -83,11 +123,17 @@ const timeRadios = document.querySelectorAll('input[name="time"]');
 timeRadios.forEach(function (radio) {
     radio.addEventListener("click", function () {
         if (this.value === "morning") {
+            currentPrice = 2000;
             document.querySelector(".price-value").textContent = "NTD 2000";
         } else {
+            currentPrice = 2500;
             document.querySelector(".price-value").textContent = "NTD 2500";
         }
     });
 });
+
+document.querySelector(".carousel-arrow-right").addEventListener("click", nextImage);
+document.querySelector(".carousel-arrow-left").addEventListener("click", prevImage);
+document.querySelector(".booking-btn").addEventListener("click", createBooking);
 
 loadAttraction();

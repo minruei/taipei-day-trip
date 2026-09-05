@@ -1,3 +1,6 @@
+// 目前是否已登入，checkSignInStatus 跑完會更新它
+let isSignedIn = false;
+
 // 會用到的元素抓下來，存成變數
 const authNav = document.querySelector("#auth-nav");           // 右上角登入/註冊
 const backdrop = document.querySelector(".dialog-backdrop");   // 遮罩層
@@ -108,6 +111,7 @@ async function checkSignInStatus() {
 
         // data 有東西代表已登入，把右上角換成登出系統
         if (result.data) {
+            isSignedIn = true;
             authNav.textContent = "登出系統";
             authNav.removeEventListener("click", openDialog);
             authNav.addEventListener("click", signout);
@@ -117,5 +121,17 @@ async function checkSignInStatus() {
     // 狀態確定了才顯示出來，避免閃過錯誤的文字
     authNav.style.visibility = "visible";
 }
+
+
+// 點「預定行程」：沒登入開彈窗，有登入跳到預定行程頁
+const bookingNav = document.querySelector("#booking-nav");
+
+bookingNav.addEventListener("click", function () {
+    if (isSignedIn) {
+        window.location.href = "/booking";
+    } else {
+        openDialog();
+    }
+});
 
 checkSignInStatus();
