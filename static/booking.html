@@ -1,11 +1,143 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant-TW">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Booking</title>
+  <link rel="stylesheet" href="/static/booking/booking.css">
+  <link rel="stylesheet" href="/static/dialog/dialog.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-  
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a class="logo" href="/">台北一日遊</a>
+      <ul>
+        <li id="booking-nav">預定行程</li>
+        <li id="auth-nav">登入/註冊</li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="booking-main">
+
+    <h2 class="headline">您好，<span id="member-name"></span>，待預訂的行程如下：</h2>
+
+    <!-- 有預訂資料時顯示 -->
+    <div id="booking-content">
+
+      <div class="booking-section">
+        <img class="booking-img" id="attraction-image" src="" alt="景點圖片">
+
+        <div class="booking-infor">
+          <h3 class="booking-title">台北一日遊：<span id="attraction-name"></span></h3>
+          <p class="infor-row"><span class="infor-label">日期：</span><span id="booking-date"></span></p>
+          <p class="infor-row"><span class="infor-label">時間：</span><span id="booking-time"></span></p>
+          <p class="infor-row"><span class="infor-label">費用：</span><span id="booking-price"></span></p>
+          <p class="infor-row"><span class="infor-label">地點：</span><span id="attraction-address"></span></p>
+        </div>
+
+        <img class="delete-btn" id="delete-btn" src="/static/images/icon_delete.svg" alt="刪除">
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="form-block">
+        <h3 class="block-title">您的聯絡資訊</h3>
+
+        <div class="form-row">
+          <label class="form-label" for="contact-name">聯絡姓名：</label>
+          <input class="form-input" type="text" id="contact-name">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="contact-email">聯絡信箱：</label>
+          <input class="form-input" type="email" id="contact-email">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="contact-phone">手機號碼：</label>
+          <input class="form-input" type="tel" id="contact-phone">
+        </div>
+
+        <p class="form-note">請保持手機暢通，準時到達，導覽人員將用手機與您聯繫，務必留下正確的聯絡方式。</p>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="form-block">
+        <h3 class="block-title">信用卡付款資訊</h3>
+
+        <div class="form-row">
+          <label class="form-label" for="card-number">卡號：</label>
+          <input class="form-input" type="text" id="card-number" placeholder="**** **** **** ****">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="card-expiry">過期時間：</label>
+          <input class="form-input" type="text" id="card-expiry" placeholder="MM / YY">
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="card-cvv">驗證密碼：</label>
+          <input class="form-input" type="text" id="card-cvv" placeholder="**">
+        </div>
+      </div>
+
+      <div class="separator"></div>
+
+      <div class="confirm-block">
+        <p class="total-price">總價：新台幣 <span id="total-price"></span> 元</p>
+        <button class="confirm-btn" id="confirm-btn">確認訂購並付款</button>
+      </div>
+
+    </div>
+
+    <!-- 沒有預訂資料時顯示 -->
+    <div id="empty-state" class="hidden">
+      <p>目前沒有任何待預訂的行程</p>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    COPYRIGHT © 2026 台北一日遊
+  </footer>
+
+  <!-- 登入註冊彈窗，遮罩層預設隱藏 -->
+  <div class="dialog-backdrop hidden">
+    <div class="dialog">
+      <div class="dialog-bar"></div>
+      <img class="dialog-close" src="/static/images/icon_close.svg" alt="關閉">
+
+      <!-- 登入表單 -->
+      <div class="dialog-form" id="signin-form">
+        <h2>登入會員帳號</h2>
+        <input type="email" class="dialog-input" id="signin-email" placeholder="輸入電子信箱">
+        <input type="password" class="dialog-input" id="signin-password" placeholder="輸入密碼">
+        <button class="dialog-btn" id="signin-btn">登入帳戶</button>
+        <p class="dialog-message" id="signin-message"></p>
+        <p class="dialog-switch" id="to-signup">還沒有帳戶？點此註冊</p>
+      </div>
+
+      <!-- 註冊表單，預設隱藏 -->
+      <div class="dialog-form hidden" id="signup-form">
+        <h2>註冊會員帳號</h2>
+        <input type="text" class="dialog-input" id="signup-name" placeholder="輸入姓名">
+        <input type="email" class="dialog-input" id="signup-email" placeholder="輸入電子郵件">
+        <input type="password" class="dialog-input" id="signup-password" placeholder="輸入密碼">
+        <button class="dialog-btn" id="signup-btn">註冊新帳戶</button>
+        <p class="dialog-message" id="signup-message"></p>
+        <p class="dialog-switch" id="to-signin">已經有帳戶了？點此登入</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/dialog/dialog.js"></script>
+  <script src="/static/booking/booking.js"></script>
+
 </body>
+
 </html>

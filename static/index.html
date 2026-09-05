@@ -7,6 +7,7 @@
   <title>Index</title>
   <link rel="stylesheet" href="/static/index/index.css">
   <link rel="stylesheet" href="/static/dialog/dialog.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -14,7 +15,7 @@
     <div class="navbar-inner">
       <a class="logo" href="/">台北一日遊</a>
       <ul>
-        <li>預定行程</li>
+        <li id="booking-nav">預定行程</li>
         <li id="auth-nav">登入/註冊</li>
       </ul>
     </div>
@@ -54,7 +55,7 @@
     COPYRIGHT © 2026 台北一日遊
   </footer>
 
-  <script src="/static/index/index.js"></script>
+
 
   <!-- 登入註冊彈窗，遮罩層預設隱藏 -->
   <div class="dialog-backdrop hidden">
@@ -86,7 +87,7 @@
   </div>
 
   <script src="/static/dialog/dialog.js"></script>
-
+  <script src="/static/index/index.js"></script>
 </body>
 
 </html>

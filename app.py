@@ -30,13 +30,39 @@ JWT_EXPIRE_DAYS = 7                    # token 有效期，規格要求七天
 # FastAPI 會照這個檢查欄位齊不齊、型別對不對，也會自動產生 /docs 的輸入框
 class SignUpInput(BaseModel):
     name: str
-    email: str 
+    email: str
     password: str
 
 # 定義登入時前端要送來的資料格式
 class SignInInput(BaseModel):
     email: str
     password: str
+
+# 定義建立預定行程時前端要送來的資料格式
+# 欄位名稱必須跟 API 規格一模一樣，attractionId 是駝峰式不是底線
+class BookingInput(BaseModel):
+    attractionId: int
+    date: str
+    time: str
+    price: int
+
+
+def get_member_id(request):
+    """從 header 的 token 取出會員 id。沒有或無效就回 None。"""
+    try:
+        auth_header = request.headers.get("Authorization")
+
+        if auth_header is None or not auth_header.startswith("Bearer "):
+            return None
+
+        token = auth_header.replace("Bearer ", "")
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+
+        return payload["id"]
+
+    except Exception:
+        return None
+
 
 @app.get("/api/categories")
 async def get_categories():
@@ -347,6 +373,7 @@ async def signup(data: SignUpInput):
         cursor.close()
         db.close()
 
+
 @app.put("/api/user/auth")
 async def signin(data: SignInInput):
     """驗證帳號密碼，正確就發一張 JWT token 給前端。"""
@@ -401,8 +428,8 @@ async def signin(data: SignInInput):
     finally:
         cursor.close()
         db.close()
-        
-        
+
+
 @app.get("/api/user/auth")
 async def get_current_user(request: Request):
     """驗證 header 裡的 token，回傳目前登入的會員資料。沒登入就回 null。"""
@@ -432,6 +459,185 @@ async def get_current_user(request: Request):
     except Exception as error:
         # token 無效或過期，一律當作沒登入
         return {"data": None}
+
+
+@app.post("/api/booking")
+async def create_booking(request: Request, data: BookingInput):
+    """
+    建立預定行程。
+    這支同時需要 header 的 token（你是誰）和 body 的內容（你要訂什麼），
+    所以 request 和 data 兩個參數都要。
+    """
+    # 沒登入就直接擋掉，寫在這裡是為了不必要時不用碰資料庫
+    member_id = get_member_id(request)
+
+    if member_id is None:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": True,
+                "message": "未登入系統，拒絕存取"
+            }
+        )
+
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        # 規格要求同時只能有一筆預訂，所以先把這個人舊的清掉
+        cursor.execute(
+            "DELETE FROM booking WHERE member_id = %s",
+            (member_id,)
+        )
+
+        # 再寫入新的一筆
+        # 左邊是資料表的欄位名（底線），右邊 data 是前端來的欄位名（駝峰）
+        cursor.execute(
+            """
+            INSERT INTO booking (member_id, attraction_id, date, time, price)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (member_id, data.attractionId, data.date, data.time, data.price)
+        )
+
+        # 刪除和新增共用同一次 commit，要嘛都生效、要嘛都不算
+        db.commit()
+
+        return {"ok": True}
+
+    except Exception as error:
+        print("錯誤內容：", error)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": True,
+                "message": "伺服器內部錯誤"
+            }
+        )
+
+    finally:
+        cursor.close()
+        db.close()
+
+@app.get("/api/booking")
+async def get_booking(request: Request):
+    """取得目前登入者的預定行程。沒有預訂就回 null。"""
+    member_id = get_member_id(request)
+
+    if member_id is None:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": True,
+                "message": "未登入系統，拒絕存取"
+            }
+        )
+
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        # 用 JOIN 一次把 booking 和 attractions 的資料湊在一起
+        cursor.execute(
+            """
+            SELECT b.date, b.time, b.price, a.id, a.name, a.address
+            FROM booking b
+            JOIN attractions a ON b.attraction_id = a.id
+            WHERE b.member_id = %s
+            """,
+            (member_id,)
+        )
+
+        result = cursor.fetchone()
+
+        # 沒有預訂不算錯誤，規格要求好好回一個 null
+        if result is None:
+            return {"data": None}
+
+        # 圖片在另一張表，而且一個景點有很多張，規格只要一張
+        cursor.execute(
+            "SELECT url FROM attraction_images WHERE attraction_id = %s",
+            (result[3],)
+        )
+
+        image_rows = cursor.fetchall()   # 拿全部，避免殘留資料卡住 cursor
+
+        # 規格只要一張圖，取第一張。萬一沒有圖就給空字串
+        if len(image_rows) == 0:
+            image = ""
+        else:
+            image = image_rows[0][0]
+
+        # result 的順序照 SELECT 寫的順序，不是資料表的順序
+        return {
+            "data": {
+                "attraction": {
+                    "id": result[3],
+                    "name": result[4],
+                    "address": result[5],
+                    "image": image
+                },
+                "date": str(result[0]),
+                "time": result[1],
+                "price": result[2]
+            }
+        }
+
+    except Exception as error:
+        print("錯誤內容：", error)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": True,
+                "message": "伺服器內部錯誤"
+            }
+        )
+
+    finally:
+        cursor.close()
+        db.close()
+        
+@app.delete("/api/booking")
+async def delete_booking(request: Request):
+    """刪除目前登入者的預定行程。"""
+    member_id = get_member_id(request)
+
+    if member_id is None:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": True,
+                "message": "未登入系統，拒絕存取"
+            }
+        )
+
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute(
+            "DELETE FROM booking WHERE member_id = %s",
+            (member_id,)
+        )
+        db.commit()   # 刪除是寫入動作，一定要 commit
+
+        return {"ok": True}
+
+    except Exception as error:
+        print("錯誤內容：", error)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": True,
+                "message": "伺服器內部錯誤"
+            }
+        )
+
+    finally:
+        cursor.close()
+        db.close()
+
+
 
 # Static Pages (Never Modify Code in this Block)
 
