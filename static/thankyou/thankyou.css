@@ -1,0 +1,99 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Sans TC", sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.navbar {
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.navbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: #448899;
+    font-size: 20px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.navbar ul {
+    display: flex;
+    gap: 10px;
+    list-style: none;
+}
+
+.navbar li {
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.thankyou-main {
+    flex: 1;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 80px 10px;
+    text-align: center;
+}
+
+.thankyou-title {
+    font-size: 24px;
+    color: #448899;
+    margin-bottom: 40px;
+}
+
+.thankyou-text {
+    font-size: 16px;
+    color: #666666;
+    margin-bottom: 20px;
+}
+
+.order-number {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 30px;
+    background-color: #448899;
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.footer {
+    background-color: #757575;
+    color: white;
+    text-align: center;
+    padding: 40px 10px;
+    font-size: 16px;
+}
+
+.hidden {
+    display: none;
+}

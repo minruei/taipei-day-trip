@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import jwt
+import requests
 from datetime import datetime, timedelta, timezone
 
 load_dotenv()   # 讀取 .env 檔，把裡面的設定變成環境變數（例如資料庫密碼）
@@ -25,6 +26,10 @@ def get_db():
 JWT_SECRET = os.getenv("JWT_SECRET")   # 從 .env 讀出簽章用的鑰匙
 JWT_ALGORITHM = "HS256"                # 簽章演算法
 JWT_EXPIRE_DAYS = 7                    # token 有效期，規格要求七天
+
+TAPPAY_PARTNER_KEY = os.getenv("TAPPAY_PARTNER_KEY")   # 從 .env 讀，能扣錢的鑰匙
+TAPPAY_MERCHANT_ID = os.getenv("TAPPAY_MERCHANT_ID")   # 商家代號
+TAPPAY_PAY_URL = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
 
 # 定義註冊時前端要送來的資料格式
 # FastAPI 會照這個檢查欄位齊不齊、型別對不對，也會自動產生 /docs 的輸入框
@@ -46,6 +51,32 @@ class BookingInput(BaseModel):
     time: str
     price: int
 
+# Part 6 訂單用的資料格式，一層包一層，對應 Swagger 的巢狀結構
+class Attraction(BaseModel):
+    id: int
+    name: str
+    address: str
+    image: str
+
+class Trip(BaseModel):
+    attraction: Attraction
+    date: str
+    time: str
+
+class Contact(BaseModel):
+    name: str
+    email: str
+    phone: str
+
+class OrderInput(BaseModel):
+    price: int
+    trip: Trip
+    contact: Contact
+
+class OrderRequest(BaseModel):
+    prime: str
+    order: OrderInput
+
 
 def get_member_id(request):
     """從 header 的 token 取出會員 id。沒有或無效就回 None。"""
@@ -62,6 +93,52 @@ def get_member_id(request):
 
     except Exception:
         return None
+
+
+def pay_by_prime(prime, amount, details, contact):
+    """
+    帶著 prime 去跟 TapPay 請款。
+    回傳 (status, message, rec_trade_id)，status 是 0 代表付款成功。
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "x-api-key": TAPPAY_PARTNER_KEY
+    }
+
+    body = {
+        "prime": prime,
+        "partner_key": TAPPAY_PARTNER_KEY,
+        "merchant_id": TAPPAY_MERCHANT_ID,
+        "amount": amount,
+        "details": details,
+        "cardholder": {
+            "phone_number": contact.phone,
+            "name": contact.name,
+            "email": contact.email
+        }
+    }
+
+    try:
+        response = requests.post(
+            TAPPAY_PAY_URL,
+            headers=headers,
+            json=body,
+            timeout=30   # 對方沒回應時最多等 30 秒
+        )
+        result = response.json()
+
+        print("TapPay 回應：", result)   # 完整回應留著，查錯誤代碼時會用到
+
+        return (
+            result.get("status"),
+            result.get("msg"),
+            result.get("rec_trade_id")
+        )
+
+    except Exception as error:
+        print("TapPay 連線失敗：", error)
+        # 連都連不上，回一個不是 0 的值代表失敗
+        return (-1, "無法連線到金流服務", None)
 
 
 @app.get("/api/categories")
@@ -519,6 +596,7 @@ async def create_booking(request: Request, data: BookingInput):
         cursor.close()
         db.close()
 
+
 @app.get("/api/booking")
 async def get_booking(request: Request):
     """取得目前登入者的預定行程。沒有預訂就回 null。"""
@@ -596,7 +674,8 @@ async def get_booking(request: Request):
     finally:
         cursor.close()
         db.close()
-        
+
+
 @app.delete("/api/booking")
 async def delete_booking(request: Request):
     """刪除目前登入者的預定行程。"""
@@ -637,6 +716,193 @@ async def delete_booking(request: Request):
         cursor.close()
         db.close()
 
+
+@app.post("/api/orders")
+async def create_order(request: Request, data: OrderRequest):
+    """建立訂單並完成付款。付款失敗也回 200，用 payment.status 表達結果。"""
+    member_id = get_member_id(request)
+
+    if member_id is None:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": True,
+                "message": "未登入系統，拒絕存取"
+            }
+        )
+
+    # 訂單編號用下單當下的時間，格式 YYYYMMDDHHMMSS
+    number = datetime.now().strftime("%Y%m%d%H%M%S")
+
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        # 訂單先建起來，status 給 0 表示還沒付款
+        # 資料是巢狀的，所以取值要一層一層走進去
+        cursor.execute(
+            """
+            INSERT INTO `order`
+            (number, member_id, attraction_id, date, time, price,
+             contact_name, contact_email, contact_phone, status)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 0)
+            """,
+            (
+                number,
+                member_id,
+                data.order.trip.attraction.id,
+                data.order.trip.date,
+                data.order.trip.time,
+                data.order.price,
+                data.order.contact.name,
+                data.order.contact.email,
+                data.order.contact.phone
+            )
+        )
+
+        # 訂單建好了，帶著 prime 去請款
+        payment_status, payment_message, rec_trade_id = pay_by_prime(
+            data.prime,
+            data.order.price,
+            data.order.trip.attraction.name,
+            data.order.contact
+        )
+
+        # 付款成功才把訂單改成已付款，並清掉購物車那筆預訂
+        # 失敗的話兩件都不做，讓使用者可以重刷
+        if payment_status == 0:
+            cursor.execute(
+                "UPDATE `order` SET status = 1 WHERE number = %s",
+                (number,)
+            )
+            cursor.execute(
+                "DELETE FROM booking WHERE member_id = %s",
+                (member_id,)
+            )
+
+        # 不管成功或失敗都留一筆付款紀錄
+        cursor.execute(
+            """
+            INSERT INTO payment (order_number, status, message, rec_trade_id)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (number, payment_status, payment_message, rec_trade_id)
+        )
+
+        # 建單、更新、刪除、付款紀錄共用同一次 commit
+        db.commit()
+
+        return {
+            "data": {
+                "number": number,
+                "payment": {
+                    "status": payment_status,
+                    "message": payment_message
+                }
+            }
+        }
+
+    except Exception as error:
+        print("錯誤內容：", error)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": True,
+                "message": "伺服器內部錯誤"
+            }
+        )
+
+    finally:
+        cursor.close()
+        db.close()
+
+
+@app.get("/api/order/{orderNumber}")
+async def get_order(request: Request, orderNumber: str):
+    """依訂單編號回傳訂單資訊。查不到就回 null。"""
+    member_id = get_member_id(request)
+
+    if member_id is None:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": True,
+                "message": "未登入系統，拒絕存取"
+            }
+        )
+
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        # 加上 member_id 條件，別人的訂單編號查不到
+        cursor.execute(
+            """
+            SELECT o.number, o.price, o.date, o.time, o.status,
+                   o.contact_name, o.contact_email, o.contact_phone,
+                   a.id, a.name, a.address
+            FROM `order` o
+            JOIN attractions a ON o.attraction_id = a.id
+            WHERE o.number = %s AND o.member_id = %s
+            """,
+            (orderNumber, member_id)
+        )
+
+        result = cursor.fetchone()
+
+        # 查不到不算錯誤，規格要求回 null
+        if result is None:
+            return {"data": None}
+
+        # 圖片在另一張表，取第一張
+        cursor.execute(
+            "SELECT url FROM attraction_images WHERE attraction_id = %s",
+            (result[8],)
+        )
+
+        image_rows = cursor.fetchall()
+
+        if len(image_rows) == 0:
+            image = ""
+        else:
+            image = image_rows[0][0]
+
+        return {
+            "data": {
+                "number": result[0],
+                "price": result[1],
+                "trip": {
+                    "attraction": {
+                        "id": result[8],
+                        "name": result[9],
+                        "address": result[10],
+                        "image": image
+                    },
+                    "date": str(result[2]),
+                    "time": result[3]
+                },
+                "contact": {
+                    "name": result[5],
+                    "email": result[6],
+                    "phone": result[7]
+                },
+                "status": result[4]
+            }
+        }
+
+    except Exception as error:
+        print("錯誤內容：", error)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": True,
+                "message": "伺服器內部錯誤"
+            }
+        )
+
+    finally:
+        cursor.close()
+        db.close()
 
 
 # Static Pages (Never Modify Code in this Block)
