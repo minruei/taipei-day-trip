@@ -6,13 +6,135 @@ from dotenv import load_dotenv
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import jwt
+import secrets
 import requests
 from datetime import datetime, timedelta, timezone
+from fastmcp import FastMCP
+from fastmcp.server.dependencies import get_http_headers
+
 
 load_dotenv()   # 讀取 .env 檔，把裡面的設定變成環境變數（例如資料庫密碼）
 
-app = FastAPI()
+# MCP Server 提供給 AI Agent 使用，名稱依照規格設定
+mcp = FastMCP("台北一日遊")
 
+@mcp.tool(
+    name="搜尋台北市景點",
+    description="透過關鍵字和捷運站名搜尋台北市一日旅遊的景點"
+)
+def search_attractions(keyword: str) -> dict:
+    """依照關鍵字或捷運站名搜尋景點，回傳景點清單。"""
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        # 名稱用模糊比對，捷運站名用完全比對，兩者符合其一即可
+        cursor.execute(
+            """
+            SELECT id, name, description
+            FROM attractions
+            WHERE name LIKE %s OR mrt = %s
+            LIMIT 20
+            """,
+            ("%" + keyword + "%", keyword)
+        )
+
+        results = cursor.fetchall()
+
+        data = []
+
+        for row in results:
+            data.append({
+                "id": row[0],
+                "name": row[1],
+                "description": row[2]
+            })
+
+        return {"data": data}
+
+    except Exception as error:
+        print("搜尋景點失敗：", error)
+        return {"error": True}
+
+    finally:
+        cursor.close()
+        db.close()
+
+@mcp.tool(
+    name="預定景點導覽行程",
+    description="根據景點編號、日期、時間、價格，預定一個景點導覽行程"
+)
+def add_to_cart(attraction_id: int, date: str, time: str, price: int) -> dict:
+    """驗證 access token 後建立一筆預定行程。"""
+    headers = get_http_headers(include_all=True)
+    auth_header = headers.get("authorization", "")
+
+    # 有些客戶端會自己拿掉 Bearer 前綴，兩種格式都接受
+    if auth_header.startswith("Bearer "):
+        token = auth_header.replace("Bearer ", "")
+    else:
+        token = auth_header
+
+    if not token:
+        return {"error": True}
+    
+    member_id = get_member_id_by_token(token)
+
+    if member_id is None:
+        return {"error": True}
+
+    # 時段只接受 morning 和 afternoon，其他值一律拒絕
+    correct_price = get_price_by_time(time)
+
+    if correct_price is None:
+        return {"error": True}
+
+    # 價格由時段決定，跟送進來的值不一致就拒絕
+    if price != correct_price:
+        return {"error": True}
+
+    # 日期必須是 YYYY-MM-DD 格式而且真的存在
+    if not is_valid_date(date):
+        return {"error": True}
+
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        # 規格要求同時只能有一筆預訂，所以先把這個人舊的清掉
+        cursor.execute(
+            "DELETE FROM booking WHERE member_id = %s",
+            (member_id,)
+        )
+
+        cursor.execute(
+            """
+            INSERT INTO booking (member_id, attraction_id, date, time, price)
+            VALUES (%s, %s, %s, %s, %s)
+            """,
+            (member_id, attraction_id, date, time, price)
+        )
+
+        db.commit()
+
+        return {
+            "ok": True,
+            "message": "台北導覽行程，預定成功，請到 http://44.223.174.41:8000/booking 完成付款。"
+        }
+
+    except Exception as error:
+        print("MCP 預定失敗：", error)
+        return {"error": True}
+
+    finally:
+        cursor.close()
+        db.close()
+
+# 把 MCP Server 包成一個可以掛載的應用程式
+mcp_app = mcp.http_app(path="/")
+
+# 建立 FastAPI，並接手 MCP 的啟動流程，否則掛載後不會運作
+app = FastAPI(lifespan=mcp_app.lifespan)
 
 def get_db():
     """建立一條連到 MySQL 的連線。每支 API 各自呼叫、各自關閉。"""
@@ -94,6 +216,50 @@ def get_member_id(request):
     except Exception:
         return None
 
+def get_member_id_by_token(token):
+    """用 MCP 的 access token 查出對應的會員 id。查不到回 None。"""
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        cursor.execute(
+            "SELECT member_id FROM token WHERE token = %s",
+            (token,)
+        )
+
+        result = cursor.fetchone()
+
+        if result is None:
+            return None
+
+        return result[0]
+
+    except Exception as error:
+        print("查詢 token 失敗：", error)
+        return None
+
+    finally:
+        cursor.close()
+        db.close()
+
+def get_price_by_time(time):
+    """依照時段回傳導覽費用。時段不是morning或afternoon回 None。"""
+    if time == "morning":
+        return 2000
+
+    if time == "afternoon":
+        return 2500
+
+    return None
+
+def is_valid_date(date):
+    """檢查日期是不是 YYYY-MM-DD 格式而且真的存在。"""
+    try:
+        datetime.strptime(date, "%Y-%m-%d")
+        return True
+
+    except Exception:
+        return False
 
 def pay_by_prime(prime, amount, details, contact):
     """
@@ -903,6 +1069,58 @@ async def get_order(request: Request, orderNumber: str):
     finally:
         cursor.close()
         db.close()
+        
+        
+@app.put("/api/token")
+async def create_token(request: Request):
+    """為目前登入的會員產生一組新的 access token，取代舊的那一組。"""
+    member_id = get_member_id(request)
+
+    if member_id is None:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": True,
+                "message": "未登入系統，拒絕存取"
+            }
+        )
+
+    # 產生 32 個位元組的隨機值，轉成 64 個字元的十六進位字串
+    new_token = secrets.token_hex(32)
+
+    db = get_db()
+    cursor = db.cursor()
+
+    try:
+        # 一個會員只能有一組有效的 token，先清掉舊的那筆
+        cursor.execute(
+            "DELETE FROM token WHERE member_id = %s",
+            (member_id,)
+        )
+
+        cursor.execute(
+            "INSERT INTO token (member_id, token) VALUES (%s, %s)",
+            (member_id, new_token)
+        )
+
+        # 刪除和新增共用同一次 commit，要嘛都生效、要嘛都不算
+        db.commit()
+
+        return {"ok": True, "token": new_token}
+
+    except Exception as error:
+        print("錯誤內容：", error)
+        return JSONResponse(
+            status_code=500,
+            content={
+                "error": True,
+                "message": "伺服器內部錯誤"
+            }
+        )
+
+    finally:
+        cursor.close()
+        db.close()
 
 
 # Static Pages (Never Modify Code in this Block)
@@ -926,4 +1144,14 @@ async def booking(request: Request):
 async def thankyou(request: Request):
     return FileResponse("./static/thankyou.html", media_type="text/html")
 
+
+@app.get("/member", include_in_schema=False)
+async def member(request: Request):
+    return FileResponse("./static/member.html", media_type="text/html")
+
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# 把 MCP Server 掛在 /mcp 位置，給 AI Agent 使用
+app.mount("/mcp", mcp_app)
+

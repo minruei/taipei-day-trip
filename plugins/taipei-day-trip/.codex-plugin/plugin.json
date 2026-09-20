@@ -1,0 +1,7 @@
+{
+    "name": "taipei-day-trip",
+    "version": "1.0.0",
+    "description": "搜尋台北市景點並預定導覽行程。",
+    "skills": "./skills/",
+    "mcpServers": "./.mcp.json"
+  }

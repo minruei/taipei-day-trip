@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>會員中心</title>
+  <link rel="stylesheet" href="/static/member/member.css?v=7">
+  <link rel="stylesheet" href="/static/dialog/dialog.css?v=7">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <a class="logo" href="/">台北一日遊</a>
+      <ul>
+        <li id="booking-nav">預定行程</li>
+        <li id="auth-nav">登入/註冊</li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="member-main">
+    <p class="greeting" id="greeting"></p>
+
+    <section class="mcp-section">
+      <h2 class="section-title">AI 工具整合</h2>
+      <p class="section-subtitle">MCP 伺服器設定：</p>
+
+      <ul class="mcp-list">
+        <li>
+          <span class="mcp-label">Host URL</span>
+          <p class="mcp-value">http://44.223.174.41:8000/mcp/</p>
+        </li>
+        <li>
+            <span class="mcp-label">Bearer Token</span>
+            <div class="value-row">
+              <p class="mcp-value" id="token-display">尚未產生</p>
+              <button class="copy-btn" id="copy-button">複製</button>
+            </div>
+          </li>
+      </ul>
+
+      <button class="member-btn" id="generate-button">產生 / 更新金鑰</button>
+    </section>
+
+    <section class="signout-section">
+        <button class="signout-btn" id="signout-button">登出會員</button>
+    </section>
+  </main>
+
+  <footer class="footer">
+    COPYRIGHT © 2026 台北一日遊
+  </footer>
+
+  <!-- 登入註冊彈窗，遮罩層預設隱藏 -->
+  <div class="dialog-backdrop hidden">
+    <div class="dialog">
+      <div class="dialog-bar"></div>
+      <img class="dialog-close" src="/static/images/icon_close.svg" alt="關閉">
+
+      <!-- 登入表單 -->
+      <div class="dialog-form" id="signin-form">
+        <h2>登入會員帳號</h2>
+        <input type="email" class="dialog-input" id="signin-email" placeholder="輸入電子信箱">
+        <input type="password" class="dialog-input" id="signin-password" placeholder="輸入密碼">
+        <button class="dialog-btn" id="signin-btn">登入帳戶</button>
+        <p class="dialog-message" id="signin-message"></p>
+        <p class="dialog-switch" id="to-signup">還沒有帳戶？點此註冊</p>
+      </div>
+
+      <!-- 註冊表單，預設隱藏 -->
+      <div class="dialog-form hidden" id="signup-form">
+        <h2>註冊會員帳號</h2>
+        <input type="text" class="dialog-input" id="signup-name" placeholder="輸入姓名">
+        <input type="email" class="dialog-input" id="signup-email" placeholder="輸入電子郵件">
+        <input type="password" class="dialog-input" id="signup-password" placeholder="輸入密碼">
+        <button class="dialog-btn" id="signup-btn">註冊新帳戶</button>
+        <p class="dialog-message" id="signup-message"></p>
+        <p class="dialog-switch" id="to-signin">已經有帳戶了？點此登入</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/dialog/dialog.js?v=7"></script>
+  <script src="/static/member/member.js?v=7"></script>
+
+</body>
+
+</html>

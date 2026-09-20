@@ -112,26 +112,27 @@ async function checkSignInStatus() {
         // data 有東西代表已登入，把右上角換成登出系統
         if (result.data) {
             isSignedIn = true;
-            authNav.textContent = "登出系統";
+            authNav.textContent = "會員中心";
             authNav.removeEventListener("click", openDialog);
-            authNav.addEventListener("click", signout);
+            authNav.addEventListener("click", function () {
+                window.location.href = "/member";
+            });
         }
     }
-
-    // 狀態確定了才顯示出來，避免閃過錯誤的文字
-    authNav.style.visibility = "visible";
-}
-
-
-// 點「預定行程」：沒登入開彈窗，有登入跳到預定行程頁
-const bookingNav = document.querySelector("#booking-nav");
-
-bookingNav.addEventListener("click", function () {
-    if (isSignedIn) {
-        window.location.href = "/booking";
-    } else {
-        openDialog();
+        // 狀態確定了才顯示出來，避免閃過錯誤的文字
+        authNav.style.visibility = "visible";
     }
-});
 
-checkSignInStatus();
+
+    // 點「預定行程」：沒登入開彈窗，有登入跳到預定行程頁
+    const bookingNav = document.querySelector("#booking-nav");
+
+    bookingNav.addEventListener("click", function () {
+        if (isSignedIn) {
+            window.location.href = "/booking";
+        } else {
+            openDialog();
+        }
+    });
+
+    checkSignInStatus();
