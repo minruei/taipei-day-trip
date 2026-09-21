@@ -1,0 +1,195 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Noto Sans TC", sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #fafafa;
+}
+
+/* 外層：目前不用畫線，但保留這一層讓結構跟其他頁一致 */
+.navbar {
+}
+
+/* 內層：負責排版、限寬置中 */
+.navbar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 15px 0;
+}
+
+.navbar ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.navbar li {
+    color: #666666;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.logo {
+    color: #448899;
+    font-size: 30px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* 主要內容區用窄版，長文字比較好讀 */
+.member-main {
+    flex: 1;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.greeting {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+/* MCP 設定區包成白色卡片，跟灰底頁面分開 */
+.mcp-section {
+    background-color: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.section-subtitle {
+    font-size: 14px;
+    color: #666666;
+    margin-bottom: 20px;
+}
+
+.mcp-list {
+    list-style: none;
+    margin-bottom: 25px;
+}
+
+.mcp-list li {
+    margin-bottom: 20px;
+}
+
+/* 標籤做成小字大寫，視覺上退到次要位置 */
+.mcp-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #999999;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+/* 值用等寬字加淺色底，暗示這是可以複製的技術資訊 */
+.mcp-value {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    color: #333333;
+    background-color: #f5f7f8;
+    border: 1px solid #e8e8e8;
+    border-radius: 5px;
+    padding: 12px 14px;
+    line-height: 1.6;
+    word-break: break-all;
+}
+
+/* 讓金鑰和複製按鈕並排，按鈕固定在右側 */
+.value-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.value-row .mcp-value {
+    flex: 1;
+}
+
+.copy-btn {
+    flex-shrink: 0;
+    padding: 0 16px;
+    background-color: transparent;
+    color: #448899;
+    font-family: inherit;
+    font-size: 13px;
+    border: 1px solid #448899;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.copy-btn:hover {
+    background-color: #448899;
+    color: white;
+}
+
+.member-btn {
+    padding: 12px 24px;
+    background-color: #448899;
+    color: white;
+    font-family: inherit;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.member-btn:hover {
+    background-color: #3a7484;
+}
+
+/* 登出按鈕做成次要樣式，避免跟主要動作搶注意力 */
+.signout-section {
+    text-align: right;
+}
+
+.signout-btn {
+    padding: 12px 24px;
+    background-color: transparent;
+    color: #666666;
+    font-family: inherit;
+    font-size: 16px;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.signout-btn:hover {
+    background-color: #f0f0f0;
+}
+
+.footer {
+    background-color: #757575;
+    color: white;
+    text-align: center;
+    padding: 40px 0;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.hidden {
+    display: none;
+}

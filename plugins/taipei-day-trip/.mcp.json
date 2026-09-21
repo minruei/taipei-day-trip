@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+      "taipei-day-trip": {
+        "url": "http://44.223.174.41:8000/mcp/",
+        "headers": {
+          "Authorization": "Bearer YOUR_ACCESS_TOKEN"
+        }
+      }
+    }
+  }
